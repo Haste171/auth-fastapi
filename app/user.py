@@ -10,6 +10,7 @@ router = APIRouter()
 @router.get("/users/me")
 def read_users_me(current_user: str = Depends(get_current_user)):
     
+    return {
         "username": current_user.username,
         "email": current_user.email,
     }
