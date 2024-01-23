@@ -10,9 +10,9 @@ router = APIRouter()
 
 
 @router.post("/token")
-def login(username: str, password: str, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.username == username).first()
+def login(email: str, password: str, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == email).first()
     if not db_user or not verify_password(password, db_user.hashed_password):
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    token = create_access_token(data={"sub": db_user.username})
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
+    token = create_access_token(data={"sub": db_user.email})
     return {"access_token": token, "token_type": "bearer"}
