@@ -42,28 +42,15 @@ class UserCreate(BaseModel):
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
     try:
-        # Check if username already exists
         existing_user = db.query(User).filter(User.username == user.username).first()
-        if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Username already registered",
-            )
-
-        # Check if email already exists
         existing_email = db.query(User).filter(User.email == user.email).first()
-        if existing_email:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered",
-            )
 
-        # If username and email are unique, proceed with user creation
-        db_user = User(
-            username=user.username,
-            email=user.email,
-            hashed_password=hash_password(user.password),
-        )
+        if existing_user or existing_email:
+            # Generic error message
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, 
+                                detail="Username or Email already in use")
+
+        db_user = User(username=user.username, email=user.email, hashed_password=hash_password(user.password))
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
@@ -71,3 +58,4 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
