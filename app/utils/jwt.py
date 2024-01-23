@@ -1,14 +1,17 @@
+import os
 import jwt
+from sqlalchemy.orm import Session
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Depends, HTTPException
 from dotenv import load_dotenv
+from app.utils.models import User
+from app.utils.database import get_db
+
 
 load_dotenv()
 
-
-# CHANGE THESE TO ENV VAR!!!!!!
-JWT_SECRET_KEY = "your-secret-key"
-JWT_ALGORITHM = "HS256"
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
+JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM")
 
 bearer_scheme = HTTPBearer()
 
@@ -29,16 +32,33 @@ def get_bearer_token(
         )
 
 
-def get_current_user(token: str = Depends(get_bearer_token)):
+def get_payload_sub(token: str = Depends(get_bearer_token)):
+    """
+    Get's the email from the token.
+    """
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        email: str = payload.get("sub")
+        if email is None:
             raise HTTPException(
                 status_code=401, detail="Invalid authentication credentials"
             )
-        return username
+        return email
     except jwt.PyJWTError:
         raise HTTPException(
             status_code=401, detail="Invalid authentication credentials"
         )
+
+
+def get_current_user(
+    db: Session = Depends(get_db), email: str = Depends(get_payload_sub)
+):
+    """
+    Get's user's information from the database using the email from the token.
+    """
+    user = db.query(User).filter(User.email == email).first()
+
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user
