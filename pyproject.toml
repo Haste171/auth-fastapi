@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "auth-fastapi"
+version = "0.1.0"
+description = "FastAPI Authentication API"
+authors = ["Your Name <34923485+Haste171@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.109.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
