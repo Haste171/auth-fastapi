@@ -1,10 +1,11 @@
 import re
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, validator
-from fastapi import Depends, APIRouter, HTTPException, status
+from fastapi import Depends, APIRouter, HTTPException, status, Request
 from app.utils.pwd import hash_password
 from app.utils.models import User
 from app.utils.database import get_db
+from app.security.ip_validator import is_vpn_ip
 
 router = APIRouter()
 
@@ -42,7 +43,11 @@ class UserCreate(BaseModel):
 
 
 @router.post("/register")
-def register(user: UserCreate, db: Session = Depends(get_db)):
+def register(user: UserCreate, request: Request, db: Session = Depends(get_db)):
+    # Waiting for api key validation
+    # user_ip = request.client.host
+    # if is_vpn_ip(user_ip):
+    #     raise HTTPException(status_code=400, detail="VPN usage is not allowed")
     try:
         existing_user = db.query(User).filter(User.username == user.username).first()
         existing_email = db.query(User).filter(User.email == user.email).first()
