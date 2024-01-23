@@ -36,6 +36,8 @@ class UserCreate(BaseModel):
             raise ValueError("Password must contain at least one letter")
         if not re.search("[0-9]", v):
             raise ValueError("Password must contain at least one numeral")
+        if len(v) > 100:
+            raise ValueError("Password length is too long")
         return v
 
 
