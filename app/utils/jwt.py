@@ -10,14 +10,14 @@ from app.utils.database import get_db
 
 load_dotenv()
 
-JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET")
 JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM")
 
 bearer_scheme = HTTPBearer()
 
 
 def create_access_token(data: dict):
-    encoded_jwt = jwt.encode(data, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+    encoded_jwt = jwt.encode(data, JWT_SECRET_KEY, algorithm='HS256')
     return encoded_jwt
 
 
@@ -37,7 +37,7 @@ def get_payload_sub(token: str = Depends(get_bearer_token)):
     Get's the email from the token.
     """
     try:
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=['HS256'])
         email: str = payload.get("sub")
         if email is None:
             raise HTTPException(

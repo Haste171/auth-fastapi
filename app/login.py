@@ -10,9 +10,11 @@ from pydantic import BaseModel, EmailStr, constr, validator
 router = APIRouter()
 
 
+from pydantic import constr
+
 class LoginRequest(BaseModel):
     email: EmailStr 
-    password: constr(strip_whitespace=True, min_length=1, max_length=100)
+    password: constr(strip_whitespace=True, min_length=1, max_length=100) # type: ignore
 
     @validator('email', pre=True)
     def normalize_email(cls, v):
